@@ -38,7 +38,6 @@ export default function Navbar() {
         user && (
           <ProfileMenu
             user={user}
-            setUser={setUser} 
           />
         )
       )}

@@ -14,7 +14,10 @@ export async function GET(req: NextRequest) {
       name: user.name,
       email: user.email,
       role: user.role,
-    }
+      address: user.address,
+      gender: user.gender,
+      mobile: user.mobile,
+    },
   });
 }
 
