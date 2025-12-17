@@ -1,23 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionFromRequest } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
-  const user = getSessionFromRequest(req);
+  try {
+    const session = await getCurrentUser(req);
 
-  if (!user) {
-    return NextResponse.json({ loggedIn: false });
+    if (!session) {
+      return NextResponse.json({ loggedIn: false });
+    }
+
+    // ✅ ADMIN LOGIN (from env)
+    if (session.role === "admin") {
+      return NextResponse.json({
+        loggedIn: true,
+        user: {
+          name: "Admin",
+          email: session.email,
+          role: "admin",
+        },
+      });
+    }
+
+    // ✅ NORMAL USER
+    const user = await db
+      .select({
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        address: users.address,
+        mobile: users.mobile,
+        gender: users.gender,
+      })
+      .from(users)
+      .where(eq(users.id, session.id))
+      .limit(1);
+
+    if (!user.length) {
+      return NextResponse.json({ loggedIn: false });
+    }
+
+    return NextResponse.json({
+      loggedIn: true,
+      user: user[0],
+    });
+  } catch (error) {
+    return NextResponse.json({ loggedIn: false }, { status: 500 });
   }
-
-  return NextResponse.json({
-    loggedIn: true,
-    user: {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      address: user.address,
-      gender: user.gender,
-      mobile: user.mobile,
-    },
-  });
 }
 

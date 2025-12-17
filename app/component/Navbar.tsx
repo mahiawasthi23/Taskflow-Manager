@@ -18,11 +18,30 @@ export default function Navbar() {
 
   useEffect(() => {
     async function checkLogin() {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
+      try {
+        const res = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
 
-      setIsLoggedIn(data.loggedIn);
-      if (data.loggedIn) setUser(data.user);
+        if (!res.ok) {
+          setIsLoggedIn(false);
+          setUser(null);
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.loggedIn && data.user) {
+          setIsLoggedIn(true);
+          setUser(data.user);
+        } else {
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
     }
 
     checkLogin();
@@ -32,14 +51,11 @@ export default function Navbar() {
     <nav className="w-full border-b p-4 flex justify-between items-center bg-white">
       <h1 className="text-xl font-bold">Task Manager</h1>
 
-      {!isLoggedIn ? (
-        <Button onClick={() => setOpenAuth(true)}>Login</Button>
+      {/* ✅ NEVER BLANK */}
+      {isLoggedIn && user ? (
+        <ProfileMenu user={user} />
       ) : (
-        user && (
-          <ProfileMenu
-            user={user}
-          />
-        )
+        <Button onClick={() => setOpenAuth(true)}>Login</Button>
       )}
 
       <AuthModal open={openAuth} onClose={() => setOpenAuth(false)} />

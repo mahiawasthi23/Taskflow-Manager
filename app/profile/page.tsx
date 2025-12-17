@@ -1,110 +1,8 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { Button } from "@/components/ui/button";
-
-// type UserType = {
-//   name: string;
-//   email: string;
-//   role: string;
-// };
-
-// export default function ProfilePage() {
-//   const [user, setUser] = useState<UserType | null>(null);
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [name, setName] = useState("");
-
-//   useEffect(() => {
-//     async function fetchUser() {
-//       const res = await fetch("/api/auth/me");
-//       const data = await res.json();
-
-//       if (data.loggedIn) {
-//         setUser(data.user);
-//         setName(data.user.name);
-//       }
-//     }
-
-//     fetchUser();
-//   }, []);
-
-//   async function handleSave() {
-//     const res = await fetch("/api/auth/update-profile", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ name }),
-//     });
-
-//     if (res.ok) {
-//       const updatedUser = await res.json();
-//       setUser(updatedUser);
-//       setIsEditing(false);
-//     } else {
-//       alert("Update failed");
-//     }
-//   }
-
-//   function handleCancel() {
-//     if (user) {
-//       setName(user.name);
-//     }
-//     setIsEditing(false);
-//   }
-
-//   if (!user) return <p className="p-4">Loading...</p>;
-
-//   return (
-//     <div className="max-w-md mx-auto mt-10 border p-6 rounded bg-white">
-//       <h2 className="text-xl font-semibold mb-4">My Profile</h2>
-
-//       {/* Name */}
-//       <label className="text-sm">Name</label>
-//       <input
-//         className="border p-2 w-full rounded mb-4"
-//         value={name}
-//         disabled={!isEditing}
-//         onChange={(e) => setName(e.target.value)}
-//       />
-
-//       {/* Email (never editable) */}
-//       <label className="text-sm">Email</label>
-//       <input
-//         className="border p-2 w-full rounded mb-4 bg-gray-100"
-//         value={user.email}
-//         disabled
-//       />
-
-//       {/* Buttons */}
-//       {!isEditing ? (
-//         <Button className="w-full" onClick={() => setIsEditing(true)}>
-//           Edit
-//         </Button>
-//       ) : (
-//         <>
-//           <Button className="w-full mb-2" onClick={handleSave}>
-//             Save
-//           </Button>
-
-//           <Button
-//             variant="outline"
-//             className="w-full"
-//             onClick={handleCancel}
-//           >
-//             Cancel
-//           </Button>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
+import {useRouter} from "next/navigation";
 type UserType = {
   name: string;
   email: string;
@@ -122,6 +20,15 @@ export default function ProfilePage() {
   const [address, setAddress] = useState("");
   const [gender, setGender] = useState("");
   const [mobile, setMobile] = useState("");
+  const router = useRouter();
+
+  function handleBack() {
+    if (user?.role === "admin"){
+      router.push("/dashboard/admin");
+    }else{
+      router.push("/dashboard/user");
+    }
+  }
 
   useEffect(() => {
     async function fetchUser() {
@@ -175,9 +82,10 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 border p-6 rounded bg-white">
+      <Button onClick={handleBack} className="mb-4 text-sm text-gray-600 hover:text-black">Back</Button>
       <h2 className="text-xl font-semibold mb-4">My Profile</h2>
 
-      {/* Name */}
+     
       <label className="text-sm">Name</label>
       <input
         className="border p-2 w-full rounded mb-4"
@@ -186,7 +94,7 @@ export default function ProfilePage() {
         onChange={(e) => setName(e.target.value)}
       />
 
-      {/* Email (never editable) */}
+  
       <label className="text-sm">Email</label>
       <input
         className="border p-2 w-full rounded mb-4 bg-gray-100"
@@ -194,7 +102,7 @@ export default function ProfilePage() {
         disabled
       />
 
-      {/* Mobile */}
+     
       <label className="text-sm">Mobile Number</label>
       <input
         className="border p-2 w-full rounded mb-4"
@@ -203,7 +111,7 @@ export default function ProfilePage() {
         onChange={(e) => setMobile(e.target.value)}
       />
 
-      {/* Gender */}
+
       <label className="text-sm">Gender</label>
       <select
         className="border p-2 w-full rounded mb-4"
@@ -217,7 +125,7 @@ export default function ProfilePage() {
         <option value="other">Other</option>
       </select>
 
-      {/* Address */}
+   
       <label className="text-sm">Address</label>
       <textarea
         className="border p-2 w-full rounded mb-4"
@@ -226,7 +134,7 @@ export default function ProfilePage() {
         onChange={(e) => setAddress(e.target.value)}
       />
 
-      {/* Buttons */}
+     
       {!isEditing ? (
         <Button className="w-full" onClick={() => setIsEditing(true)}>
           Edit
